@@ -8,7 +8,7 @@ Use this pre-formatted metadata when submitting on **[orionagents.org/submit?hac
 * **Name:** `VeriQuant`
 * **Category:** `trading` (or `research`)
 * **Chain:** `base`
-* **Website URL:** *(Your deployed Vercel URL, e.g., `https://veriquant.vercel.app`)*
+* **Website URL:** `https://veriquant-eta.vercel.app`
 * **Demo URL:** *(Your 2-minute Loom/YouTube video or live audit URL)*
 * **GitHub URL:** `https://github.com/your-username/veriquant`
 * **Twitter / X:** *(Your project or personal X handle)*

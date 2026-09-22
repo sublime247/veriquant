@@ -1,6 +1,5 @@
 # VeriQuant ⚡
 > **The Tamper-Proof Quant Oracle & Verifiable Backtesting Engine for AI Trading Agents on Base.**
-> *Submitted to the Orion Builder Hackathon (August 12 – September 27, 2026).*
 
 [![Chain](https://img.shields.io/badge/Chain-Base%20Mainnet%20(8453)-blue)](https://base.org)
 [![Protocol](https://img.shields.io/badge/Protocol-x402%20Micropayments-emerald)](https://x402.org)

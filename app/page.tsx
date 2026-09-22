@@ -25,7 +25,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            ORION BUILDER HACKATHON 2026 ENTRY
+            BASE MAINNET PROTOCOL • ACTIVE ORACLE
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-zinc-100 max-w-4xl mx-auto leading-tight">
@@ -199,7 +199,7 @@ export default function Home() {
               </div>
               <div className="p-3 rounded bg-zinc-950 text-[11px] text-zinc-300 overflow-x-auto">
                 <code>{`# Query audit with x402 payment header
-curl -X POST https://veriquant.org/api/v1/audit \\
+curl -X POST https://veriquant-eta.vercel.app/api/v1/audit \\
   -H "Content-Type: application/json" \\
   -H "x-payment-tx: 0x8453a9...fee" \\
   -d '{"name":"AlphaBot","token":"AERO","archetype":"momentum_rsi"}'`}</code>
@@ -230,7 +230,7 @@ const response = await mcpClient.callTool({
       {/* Footer */}
       <footer className="border-t border-zinc-800/80 py-8 bg-zinc-950 text-xs text-zinc-500 font-mono">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>VERIQUANT // BASE MAINNET QUANT ORACLE • ORION BUILDER HACKATHON 2026</div>
+          <div>VERIQUANT // BASE MAINNET QUANT ORACLE • EIP-4844 VERIFIED</div>
           <div className="flex items-center gap-4">
             <Link href="/audit" className="hover:text-zinc-300">Auditor</Link>
             <Link href="/leaderboard" className="hover:text-zinc-300">Leaderboard</Link>
