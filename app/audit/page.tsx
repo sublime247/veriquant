@@ -44,6 +44,48 @@ export default function AuditPage() {
     try {
       const res = await runBacktestSimulation(config);
       setResult(res);
+
+      // Auto-register to dynamic leaderboard and local cache
+      try {
+        fetch('/api/v1/leaderboard', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            strategy: res.strategy,
+            metrics: res.metrics,
+            integrity: res.integrity,
+            receipt: res.receipt,
+          }),
+        }).catch(() => {});
+
+        if (typeof window !== 'undefined') {
+          const saved = localStorage.getItem('veriquant_client_audits');
+          const list = saved ? JSON.parse(saved) : [];
+          const newEntry = {
+            id: `agent_${res.receipt.receiptId.slice(-8)}`,
+            name: res.strategy.name,
+            developer: '0x' + res.receipt.attestationDigest.slice(2, 6) + '...' + res.receipt.attestationDigest.slice(-4),
+            token: res.strategy.token,
+            tokenAddress: res.strategy.customTokenAddress,
+            archetype: res.strategy.archetype.replace('_', ' ').toUpperCase(),
+            integrityScore: res.integrity.score,
+            grade: res.integrity.grade,
+            sharpeRatio: res.metrics.sharpeRatio,
+            sortinoRatio: res.metrics.sortinoRatio,
+            maxDrawdown: res.metrics.maxDrawdownPercent,
+            totalReturn: res.metrics.totalReturnPercent,
+            winRate: res.metrics.winRatePercent,
+            receiptId: res.receipt.receiptId,
+            attestationDigest: res.receipt.attestationDigest,
+            verifiedAt: new Date().toISOString(),
+            status: res.integrity.grade === 'FAIL' ? 'FLAGGED' : 'VERIFIED',
+          };
+          const updated = [newEntry, ...list.filter((x: any) => x.receiptId !== res.receipt.receiptId)];
+          localStorage.setItem('veriquant_client_audits', JSON.stringify(updated.slice(0, 30)));
+        }
+      } catch (e) {
+        console.warn('Leaderboard auto-register notice:', e);
+      }
     } catch (err) {
       console.error('Audit simulation error:', err);
     } finally {
