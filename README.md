@@ -1,10 +1,12 @@
 # VeriQuant ⚡
 > **The Tamper-Proof Quant Oracle & Verifiable Backtesting Engine for AI Trading Agents on Base.**
 
-[![Chain](https://img.shields.io/badge/Chain-Base%20Mainnet%20(8453)-blue)](https://base.org)
-[![Protocol](https://img.shields.io/badge/Protocol-x402%20Micropayments-emerald)](https://x402.org)
-[![Interface](https://img.shields.io/badge/Interface-Model%20Context%20Protocol%20(MCP)-purple)](https://modelcontextprotocol.io)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Demo-veriquant--eta.vercel.app-10b981?style=for-the-badge&logo=vercel)](https://veriquant-eta.vercel.app)
+[![Chain](https://img.shields.io/badge/Chain-Base%20Mainnet%20(8453)-0052FF?style=for-the-badge&logo=ethereum)](https://base.org)
+[![Protocol](https://img.shields.io/badge/Protocol-x402%20Micropayments-10b981?style=for-the-badge)](https://x402.org)
+[![Interface](https://img.shields.io/badge/Interface-Model%20Context%20Protocol%20(MCP)-7c3aed?style=for-the-badge)](https://modelcontextprotocol.io)
+
+**Live Production App:** [https://veriquant-eta.vercel.app](https://veriquant-eta.vercel.app)
 
 ---
 
@@ -18,7 +20,7 @@ The crypto AI agent ecosystem is flooded with "autonomous trading bots" claiming
 When exchanges (like **WEEX** and **BingX**) or launchpads (like **HuoStarter** and **Orion Agents**) attempt to vet or list these agents, they face asymmetric information risk.
 
 ### The Solution: VeriQuant
-**VeriQuant** is an open, deterministic quant evaluation oracle native to **Base (Chain ID 8453)**. It replays trading strategies against historical Base DEX liquidity depth (Aerodrome, Uniswap V3), enforces institutional hedge-fund risk metrics, flags curve-fitting, and emits **SHA-256 cryptographic attestation receipts**.
+**VeriQuant** is an open, deterministic quant evaluation oracle native to **Base (Chain ID 8453)**. It replays trading strategies against real-time Base DEX liquidity depth (Aerodrome, Uniswap V3 via DexScreener & GeckoTerminal), supports any custom Base token contract address (`0x...`), enforces institutional hedge-fund risk metrics, flags curve-fitting, and emits **SHA-256 cryptographic attestation receipts**.
 
 ---
 
@@ -29,13 +31,13 @@ When exchanges (like **WEEX** and **BingX**) or launchpads (like **HuoStarter** 
 │               Input: Agent Strategy                    │
 │   • Rule Set (RSI, EMA, Bollinger, ATR)                │
 │   • Natural Language Prompt ("Scalp AERO dips...")     │
-│   • Base Token Pair (AERO, WETH, VIRTUAL, DEGEN)       │
+│   • Base Token or Custom Contract (0x... on Base)      │
 └───────────────────────────┬────────────────────────────┘
                             │
                             ▼
 ┌────────────────────────────────────────────────────────┐
 │            VeriQuant Deterministic Engine              │
-│   1. Replay against Base DEX Historical Tick Feed      │
+│   1. Live Base DEX Candlestick Stream (DexScreener API)│
 │   2. Dynamic AMM Pool Slippage Model                   │
 │   3. EIP-4844 Blob & L2 Gas Accounting                 │
 │   4. Calculate Institutional Quant KPIs                │
@@ -55,6 +57,7 @@ When exchanges (like **WEEX** and **BingX**) or launchpads (like **HuoStarter** 
                               │    Ecosystem Exposure     │
                               │ • x402 Micropayments      │
                               │ • Model Context Protocol  │
+                              │ • Live Dynamic Leaderboard│
                               │ • Public Certificate URL  │
                               └───────────────────────────┘
 ```
@@ -76,12 +79,21 @@ VeriQuant computes true hedge-fund performance metrics:
 
 ---
 
-## 4. Machine-to-Machine Protocols
+## 4. Key Real-Time Capabilities
+
+* **Real Base DEX Candlestick Ingestion:** Direct integration with live Base pools (Aerodrome, Uniswap V3) via DexScreener & GeckoTerminal.
+* **Custom Token Contract Support:** Audit any newly deployed token on Base simply by pasting its `0x...` contract address.
+* **Live Block Telemetry:** Streams real-time Base block ticks and live 14-period RSI calculations every 2 seconds.
+* **Dynamic Community Leaderboard:** Dynamic ranking featuring 14 curated autonomous agent archetypes and auto-registration of user-executed audits.
+
+---
+
+## 5. Machine-to-Machine Protocols
 
 ### A. HTTP 402 Payment Required (`x402`)
-Other autonomous agents on Base can audit strategies by paying **0.25 USDC** per audit:
+Other autonomous agents on Base can audit strategies by paying **0.25 USDC** per audit to the protocol treasury (`0x557119D048498e66269Ee226b431D16e9beB0d9f`):
 ```bash
-curl -X POST https://veriquant.org/api/v1/audit \
+curl -X POST https://veriquant-eta.vercel.app/api/v1/audit \
   -H "Content-Type: application/json" \
   -H "x-payment-tx: 0x8453a9f029...txhash" \
   -d '{
@@ -99,11 +111,11 @@ curl -X POST https://veriquant.org/api/v1/audit \
 VeriQuant exposes native tools over HTTP JSON-RPC at `/api/mcp`:
 * `veriquant_audit_strategy`: Deterministically audits a strategy on Base AMMs.
 * `veriquant_verify_receipt`: Validates a receipt's cryptographic SHA-256 digest.
-* `veriquant_get_leaderboard`: Fetches the verified leaderboard.
+* `veriquant_get_leaderboard`: Fetches the live verified leaderboard.
 
 ---
 
-## 5. Quickstart & Local Development
+## 6. Quickstart & Local Development
 
 ### Prerequisites
 * Node.js 18+ or 22+
@@ -112,7 +124,7 @@ VeriQuant exposes native tools over HTTP JSON-RPC at `/api/mcp`:
 ### Setup
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/veriquant.git
+git clone https://github.com/sublime247/veriquant.git
 cd veriquant
 
 # 2. Install dependencies
@@ -125,11 +137,11 @@ npx tsx lib/quant/__tests__/verification.test.ts
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to access the interactive Strategy Auditor.
+Open [http://localhost:3000](http://localhost:3000) or visit the live deployment at [https://veriquant-eta.vercel.app](https://veriquant-eta.vercel.app).
 
 ---
 
-## 6. Built for Partner Judges & Orion DAO
+## 7. Built for Partner Judges & Orion DAO
 * **WEEX & BingX:** Provides the exact quantitative due-diligence layer required before onboarding automated bots to copy-trading desks.
 * **HuoStarter & Orion Launchpad:** Automated risk scoring replaces manual, subjective vetting.
 * **Base Builders:** Protects developers and capital allocators from predatory or flawed token strategies.
