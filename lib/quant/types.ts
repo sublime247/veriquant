@@ -18,7 +18,8 @@ export interface StrategyConfig {
   name: string;
   description?: string;
   archetype: StrategyArchetype;
-  token: 'WETH' | 'AERO' | 'VIRTUAL' | 'DEGEN';
+  token: string;
+  customTokenAddress?: string;
   timeframe: '1h' | '4h' | '1d';
   initialCapitalUsd: number;
   // Technical parameters
@@ -122,4 +123,16 @@ export interface BacktestResult {
   trades: Trade[];
   datasetHash: string;
   receipt: VeriQuantReceipt;
+  isLiveDEXData?: boolean;
+  poolMetadata?: {
+    tokenAddress: string;
+    tokenSymbol: string;
+    tokenName: string;
+    pairAddress: string;
+    dexId: string;
+    priceUsd: number;
+    liquidityUsd: number;
+    volume24h: number;
+    priceChange24h: number;
+  };
 }

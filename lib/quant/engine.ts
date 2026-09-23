@@ -8,17 +8,27 @@ import {
 import { calculateRSI, calculateEMA, calculateATR } from './indicators';
 import { calculateQuantMetrics } from './metrics';
 import { evaluateStrategyIntegrity } from './overfit';
-import { generateDeterministicBaseCandles, computeDatasetHash } from '../data/base-dex';
+import { getBaseCandles, generateDeterministicBaseCandles, computeDatasetHash } from '../data/base-dex';
 import { generateReceipt } from '../crypto/attestation';
 
 export async function runBacktestSimulation(
   strategy: StrategyConfig,
   customCandles?: Candle[]
 ): Promise<BacktestResult> {
-  const candles =
-    customCandles && customCandles.length > 0
-      ? customCandles
-      : generateDeterministicBaseCandles(strategy.token, strategy.timeframe, 320);
+  let candles = customCandles && customCandles.length > 0 ? customCandles : null;
+  let isLiveDEXData = false;
+  let poolMetadata: any = undefined;
+
+  if (!candles) {
+    const liveFetch = await getBaseCandles(
+      strategy.token,
+      strategy.timeframe,
+      strategy.customTokenAddress
+    );
+    candles = liveFetch.candles;
+    isLiveDEXData = liveFetch.isLive;
+    poolMetadata = liveFetch.metadata;
+  }
 
   const datasetHash = await computeDatasetHash(candles);
 
@@ -214,7 +224,8 @@ export async function runBacktestSimulation(
   );
 
   const integrity = evaluateStrategyIntegrity(strategy, metrics, trades);
-  const receipt = await generateReceipt(strategy, datasetHash, metrics, integrity);
+  const snapshotTimestamp = candles[candles.length - 1]?.timestamp || Math.floor(Date.now() / 1000);
+  const receipt = await generateReceipt(strategy, datasetHash, metrics, integrity, snapshotTimestamp);
 
   return {
     strategy,
@@ -224,5 +235,7 @@ export async function runBacktestSimulation(
     trades,
     datasetHash,
     receipt,
+    isLiveDEXData,
+    poolMetadata,
   };
 }

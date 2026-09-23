@@ -3,40 +3,45 @@
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import StrategyForm from '@/components/audit/StrategyForm';
+import LiveTelemetryBar from '@/components/audit/LiveTelemetryBar';
+import RealtimeMonitor from '@/components/audit/RealtimeMonitor';
 import MetricGrid from '@/components/audit/MetricGrid';
 import IntegrityCard from '@/components/audit/IntegrityCard';
 import EquityChart from '@/components/audit/EquityChart';
 import ProofBadge from '@/components/audit/ProofBadge';
 import { StrategyConfig, BacktestResult } from '@/lib/quant/types';
 import { runBacktestSimulation } from '@/lib/quant/engine';
-import { Terminal, Database, Activity } from 'lucide-react';
+import { Terminal, Database, Activity, Radio, Layers } from 'lucide-react';
 
 export default function AuditPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<BacktestResult | null>(null);
+  const [activeMode, setActiveMode] = useState<'backtest' | 'realtime'>('backtest');
+  const [currentConfig, setCurrentConfig] = useState<StrategyConfig>({
+    name: 'Aero Alpha Momentum',
+    archetype: 'momentum_rsi',
+    token: 'AERO',
+    customTokenAddress: '',
+    timeframe: '4h',
+    initialCapitalUsd: 10000,
+    entryThreshold: 32,
+    exitThreshold: 68,
+    stopLossPercent: 4.5,
+    takeProfitPercent: 9.0,
+    positionSizePercent: 30,
+    maxSlippagePercent: 0.3,
+    leverage: 1,
+  });
 
-  // Run initial default audit on mount so user immediately sees rich data
+  // Run initial default audit on mount
   useEffect(() => {
-    handleRunAudit({
-      name: 'Aero Alpha Momentum',
-      archetype: 'momentum_rsi',
-      token: 'AERO',
-      timeframe: '4h',
-      initialCapitalUsd: 10000,
-      entryThreshold: 32,
-      exitThreshold: 68,
-      stopLossPercent: 4.5,
-      takeProfitPercent: 9.0,
-      positionSizePercent: 30,
-      maxSlippagePercent: 0.3,
-      leverage: 1,
-    });
+    handleRunAudit(currentConfig);
   }, []);
 
   const handleRunAudit = async (config: StrategyConfig) => {
     setLoading(true);
+    setCurrentConfig(config);
     try {
-      // Execute via engine
       const res = await runBacktestSimulation(config);
       setResult(res);
     } catch (err) {
@@ -47,42 +52,71 @@ export default function AuditPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-mono">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header Title Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-800">
           <div>
-            <div className="flex items-center gap-2 text-xs font-mono text-emerald-400 mb-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              ORACLE WORKSTATION // DETERMINISTIC SIMULATION
+            <div className="flex items-center gap-2 text-xs text-emerald-400 mb-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              BASE MAINNET ORACLE WORKSTATION // REAL-TIME CONNECTED
             </div>
-            <h1 className="text-2xl sm:text-3xl font-mono font-bold tracking-tight text-zinc-100">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-100">
               AI Trading Agent Strategy Auditor
             </h1>
-            <p className="text-sm text-zinc-400 font-mono mt-1">
-              Deterministic replay against Base DEX liquidity pools (Aerodrome/Uniswap V3) with EIP-4844 gas accounting.
+            <p className="text-sm text-zinc-400 mt-1">
+              Deterministic replay and real-time live execution monitoring against Base DEX liquidity pools (Aerodrome, Uniswap V3).
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 text-right font-mono text-xs">
+            <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 text-right text-xs">
               <div className="text-zinc-500">x402 Protocol Cost</div>
               <div className="text-emerald-400 font-bold mt-0.5">0.25 USDC / Audit</div>
             </div>
           </div>
         </div>
 
-        {/* Strategy Form */}
-        <StrategyForm onRunAudit={handleRunAudit} loading={loading} />
+        {/* Live Pool Telemetry Bar */}
+        <LiveTelemetryBar
+          metadata={result?.poolMetadata}
+          isLive={result?.isLiveDEXData ?? true}
+        />
 
-        {/* Results Presentation */}
-        {result && (
-          <div className="space-y-6 pt-4">
-            <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 uppercase tracking-wider">
-              <Activity className="w-3.5 h-3.5 text-emerald-400" />
-              <span>AUDIT RESULTS FOR [{result.strategy.name.toUpperCase()}] • PAIR: {result.strategy.token}/USDC</span>
+        {/* Strategy Form & Token Resolver */}
+        <StrategyForm
+          onRunAudit={handleRunAudit}
+          loading={loading}
+          activeMode={activeMode}
+          onModeChange={setActiveMode}
+        />
+
+        {/* Real-time Watcher View */}
+        {activeMode === 'realtime' && (
+          <RealtimeMonitor
+            token={currentConfig.token}
+            customAddress={currentConfig.customTokenAddress}
+            archetype={currentConfig.archetype}
+            entryThreshold={currentConfig.entryThreshold}
+            exitThreshold={currentConfig.exitThreshold}
+          />
+        )}
+
+        {/* Historical Backtest Results Presentation */}
+        {activeMode === 'backtest' && result && (
+          <div className="space-y-6 pt-2">
+            <div className="flex items-center justify-between text-xs text-zinc-400 uppercase tracking-wider">
+              <div className="flex items-center gap-2">
+                <Activity className="w-3.5 h-3.5 text-emerald-400" />
+                <span>
+                  AUDIT RESULTS FOR [{result.strategy.name.toUpperCase()}] • ASSET: {result.strategy.token}
+                </span>
+              </div>
+              <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                {result.isLiveDEXData ? 'AUTHENTIC ON-CHAIN CANDLES' : 'CALIBRATED SIMULATION'}
+              </span>
             </div>
 
             {/* Top KPIs */}
@@ -101,16 +135,16 @@ export default function AuditPage() {
             <ProofBadge receipt={result.receipt} />
 
             {/* Executed Trade Ledger */}
-            <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/60 font-mono space-y-4">
+            <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/60 space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
                 <div className="flex items-center gap-2">
                   <Database className="w-4 h-4 text-emerald-400" />
                   <h3 className="text-sm font-semibold text-zinc-200">
-                    DETERMINISTIC TRADE LEDGER ({result.trades.length} EXECUTIONS)
+                    DETERMINISTIC ON-CHAIN TRADE LEDGER ({result.trades.length} EXECUTIONS)
                   </h3>
                 </div>
                 <span className="text-xs text-zinc-500">
-                  Base Swap Slippage & Gas Deducted
+                  Base Swap Slippage & EIP-4844 Gas Deducted
                 </span>
               </div>
 
@@ -130,7 +164,7 @@ export default function AuditPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800/60">
-                    {result.trades.slice(0, 8).map((t) => (
+                    {result.trades.slice(0, 10).map((t) => (
                       <tr key={t.id} className="hover:bg-zinc-800/30">
                         <td className="py-2.5 text-zinc-400">{t.id}</td>
                         <td className="py-2.5 text-emerald-400 font-bold">{t.direction}</td>

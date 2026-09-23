@@ -18,9 +18,10 @@ export async function generateReceipt(
   strategy: StrategyConfig,
   datasetHash: string,
   metrics: QuantMetrics,
-  integrity: IntegrityReport
+  integrity: IntegrityReport,
+  fixedTimestamp?: number
 ): Promise<VeriQuantReceipt> {
-  const timestamp = Math.floor(Date.now() / 1000);
+  const timestamp = fixedTimestamp || Math.floor(Date.now() / 1000);
 
   // Canonical string representations for hashing
   const strategyString = JSON.stringify({
