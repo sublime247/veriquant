@@ -11,7 +11,8 @@ export interface X402Challenge {
   expiresAt: number;
 }
 
-export const VERIQUANT_TREASURY_BASE = '0x5381f70a0c4d4720b7d25548c5947735a241base';
+export const VERIQUANT_TREASURY_BASE =
+  process.env.VERIQUANT_TREASURY_BASE || '0x557119D048498e66269Ee226b431D16e9beB0d9f';
 
 /**
  * Creates an RFC-compliant HTTP 402 challenge header payload for machine-to-machine agents
